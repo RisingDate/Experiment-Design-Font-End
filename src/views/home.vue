@@ -4,16 +4,21 @@
     <div style="display: flex; width: 100%">
       <div style="width: 38%; margin-right: 2%">
         <el-card style="width: 100%; height: 100%" shadow="never">
-          <div style="display: flex; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div
+              style="display: flex; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
             <div style="font-size: 16px; display: flex; align-items: center">
               <img src="../assets/images/smile.png" style="height: 22px" alt="smile"/>
               <span>请在下方文本框中输入您的需求</span>
               <img src="../assets/images/smile.png" style="height: 22px" alt="smile"/>
             </div>
-            <el-button type="warning" size="default" @click="demandAnalysis()">解析</el-button>
+            <div style="display: flex">
+              <el-button type="primary" size="default" @click="logDrawerVisible = true">查看日志</el-button>
+              <el-button type="warning" size="default" @click="demandAnalysis()">解析</el-button>
+            </div>
           </div>
           <el-input v-model="demandText" style="width: 100%; font-size: 14px; line-height: 1.5"
                     :rows="8" resize="none" type="textarea" placeholder="Please input your demand"/>
+          <!--     知识图谱     -->
           <div style="display: flex; width: 100%; margin-top: 2rem">
             <div id="demandChart" style="width: 60%; height: 35vh"></div>
             <div style="display: flex; flex-direction: column; width: 40%; padding: 2vh 5px 0 5px">
@@ -35,15 +40,30 @@
               </el-scrollbar>
             </div>
           </div>
-          <el-card style="width: 100%; height: 24vh; margin-top: 2vh" shadow="never">
-            你好
-          </el-card>
+          <!--     Agent设计     -->
+          <div style="display: flex; width: 100%; align-items: center">
+            <el-card style="width: calc(100% - 100px); height: 24vh; margin-top: 2vh" shadow="never">
+              你好
+            </el-card>
+            <div style="display: flex; width: 100px; flex-direction: column;">
+              <div style="display: flex; width: 100%; justify-content: center; margin-left: 1rem">
+                <span class="card-title-font">智能体设计</span>
+              </div>
+              <div class="avatar-card avatar-card-right">
+                <img src="../assets/images/avatar/图层 7.png" class="avatar-size" alt="expGoal"/>
+                <div style="display: flex">
+                  <el-tag round style="margin-right: 5px" :type="agentAvatarState.agentDesigner.idType">5</el-tag>
+                  <el-tag :type="agentAvatarState.agentDesigner.type">{{ agentAvatarState.agentDesigner.state }}</el-tag>
+                </div>
+              </div>
+            </div>
+          </div>
         </el-card>
       </div>
       <div style="width: 60%; display: flex; flex-direction: column; justify-content: space-between;">
         <el-card style="width: 100%; height: 100%" shadow="never" v-loading="isLoading"
                  element-loading-text="需求解析中">
-          <el-scrollbar max-height="76vh">
+          <el-scrollbar max-height="88vh">
             <div style="display: flex; flex-direction: column; width: 100%">
               <!--    实验目的     -->
               <div style="width: 100%; display: flex">
@@ -51,32 +71,34 @@
                   <img src="../assets/images/avatar/expGoal.png" class="avatar-size" alt="加载失败"/>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.expGoal.idType">1</el-tag>
-                    <el-tag :type="agentAvatarState.expGoal.type">{{agentAvatarState.expGoal.state}}</el-tag>
+                    <el-tag :type="agentAvatarState.expGoal.type">{{ agentAvatarState.expGoal.state }}</el-tag>
                   </div>
                 </div>
-                <el-card shadow="never" style="display: flex; align-items: center; justify-content: center; height: 100px; width: 100px; font-size: 16px; --el-card-padding: 15px">
+                <el-card shadow="never"
+                         style="display: flex; align-items: center; justify-content: center; height: 100px; width: 100px; font-size: 16px; --el-card-padding: 15px">
                   <div style="width: 100%; justify-content: center; display: flex">实验目的</div>
                   <el-tag size="large" style="margin-top: 2px; width: 100%">{{ expData.goal.category }}</el-tag>
                 </el-card>
                 <el-card shadow="never"
-                    style="margin-left: 1rem; width: calc(100% - 296px); height: 100px; display: flex; align-items: center; font-size: 15px">
+                         style="margin-left: 1rem; width: calc(100% - 296px); height: 100px; display: flex; align-items: center; font-size: 15px">
                   <span style="color: #9D3807">目的解释：</span>{{ expData.goal.explain }}
                 </el-card>
                 <div class="avatar-card avatar-card-right">
                   <img src="../assets/images/avatar/图层 0.png" class="avatar-size" alt="expGoal"/>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.expGoalObserver.idType">2</el-tag>
-                    <el-tag :type="agentAvatarState.expGoalObserver.type">{{agentAvatarState.expGoalObserver.state}}</el-tag>
+                    <el-tag :type="agentAvatarState.expGoalObserver.type">{{ agentAvatarState.expGoalObserver.state }}
+                    </el-tag>
                   </div>
                 </div>
               </div>
               <!--    影响因素 & 响应变量     -->
-              <div style="display: flex; align-items: center; width: 100%">
-                <div style="margin-top: 1rem; width: calc(100% - 100px); display: flex; align-items: center">
+              <div style="display: flex; align-items: center; width: 100%; margin-top: 3rem;">
+                <div style="width: calc(100% - 100px); display: flex; align-items: center">
                   <el-card style="width: 42%" shadow="never">
                     <div class="var-card">
-                      <span style="font-weight: bold; font-size: 16px; margin-bottom: 5px">影响因素</span>
-                      <el-scrollbar height="160px">
+                      <span class="card-title-font">影响因素</span>
+                      <el-scrollbar height="200px">
                         <div style="display: flex; flex-direction: column; width: 100%; align-items: center">
                           <span v-for="(item, index) in expData.influenceFactor" style="font-size: 15px">
                             {{ item }}
@@ -85,7 +107,8 @@
                       </el-scrollbar>
                     </div>
                   </el-card>
-                  <div style="height: 220px; display: flex; width: 16%; justify-content: center; align-items: center; position: relative">
+                  <div
+                      style="height: 220px; display: flex; width: 16%; justify-content: center; align-items: center; position: relative">
                     <img src="../assets/images/greenArrow2.png" style="width: 90%" alt="arrow"/>
                     <div style="position: absolute; margin-bottom: 10px">
                       <el-tooltip content="对应关系" effect="light" placement="top">
@@ -99,8 +122,8 @@
                   </div>
                   <el-card style="width: 42%" shadow="never">
                     <div class="var-card">
-                      <span style="font-weight: bold; font-size: 16px; margin-bottom: 5px">响应变量</span>
-                      <el-scrollbar height="160px">
+                      <span class="card-title-font">响应变量</span>
+                      <el-scrollbar height="200px">
                         <div style="display: flex; flex-direction: column; width: 100%; align-items: center">
                           <span v-for="(item, index) in expData.responseVar" style="font-size: 15px">
                             {{ item }}
@@ -114,34 +137,35 @@
                   <img src="../assets/images/avatar/图层 3.png" class="avatar-size" alt="expGoal"/>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.VCObserver.idType">3</el-tag>
-                    <el-tag :type="agentAvatarState.VCObserver.type">{{agentAvatarState.VCObserver.state}}</el-tag>
+                    <el-tag :type="agentAvatarState.VCObserver.type">{{ agentAvatarState.VCObserver.state }}</el-tag>
                   </div>
                 </div>
               </div>
               <!--    实验方法    -->
-              <div style="display: flex; align-items: center; width: 100%">
+              <div style="display: flex; align-items: center; width: 100%; margin-top: 3rem;">
                 <div style="display: flex; flex-direction: column; width: calc(100% - 100px)">
-                  <div style="display: flex; width: 100%; justify-content: center; margin-top: 1rem; font-size: 16px; font-weight: bold">
+                  <div class="card-title-font" style="display: flex; width: 100%; justify-content: center">
                     实验方法：<span style="color: #F7D233">{{ expData.expParams.expMethod }}</span>
                   </div>
                   <el-table :data="expParamsTableData" style="margin-top: 5px; width: 100%"
-                      border max-height="270px" stripe>
-              <el-table-column prop="index" label="Index" align="center"/>
-              <el-table-column v-for="(item, index) in expData.influenceFactor"
-                               :prop="item" align="center">
-                <template #header>
-                  <el-tooltip :content="item" placement="top">
-                    <span>Var{{ index + 1 }}</span>
-                  </el-tooltip>
-                </template>
-              </el-table-column>
-            </el-table>
+                            border height="299px" stripe>
+                    <el-table-column prop="index" label="Index" align="center"/>
+                    <el-table-column v-for="(item, index) in expData.influenceFactor"
+                                     :prop="item" align="center">
+                      <template #header>
+                        <el-tooltip :content="item" placement="top">
+                          <span>Var{{ index + 1 }}</span>
+                        </el-tooltip>
+                      </template>
+                    </el-table-column>
+                  </el-table>
                 </div>
                 <div class="avatar-card avatar-card-right">
                   <img src="../assets/images/avatar/图层 5.png" class="avatar-size" alt="expGoal"/>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.VCParamObserver.idType">4</el-tag>
-                    <el-tag :type="agentAvatarState.VCParamObserver.type">{{agentAvatarState.VCParamObserver.state}}</el-tag>
+                    <el-tag :type="agentAvatarState.VCParamObserver.type">{{ agentAvatarState.VCParamObserver.state }}
+                    </el-tag>
                   </div>
                 </div>
               </div>
@@ -167,6 +191,10 @@
         </span>
       </div>
     </el-dialog>
+    <!--   日志抽屉   -->
+    <el-drawer v-model="logDrawerVisible" title="Agent行为日志" direction="ltr">
+
+    </el-drawer>
   </div>
 </template>
 
@@ -275,7 +303,9 @@ export default {
         expGoalObserver: {state: '等待中', type: 'info', idType: 'info'},
         VCObserver: {state: '等待中', type: 'info', idType: 'info'},
         VCParamObserver: {state: '等待中', type: 'info', idType: 'info'},
-      }
+        agentDesigner: {state: '等待中', type: 'info', idType: 'info'}
+      },
+      logDrawerVisible: false,
     }
   },
   created() {
@@ -431,14 +461,15 @@ export default {
 </script>
 
 <style scoped>
-.bg-card{
+.bg-card {
   width: calc(100% - 40px);
   height: calc(98vh - 40px);
   padding: 20px;
   min-width: 1200px;
   position: relative
 }
-.avatar-card{
+
+.avatar-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -446,17 +477,19 @@ export default {
   width: 90px;
   margin-right: 1rem;
 }
-.avatar-card-right{
+
+.avatar-card-right {
   margin-left: 1rem;
   margin-right: 0;
 }
-.avatar-size{
+
+.avatar-size {
   height: 70px;
   width: 70px;
   margin-bottom: 5px;
 }
 
-.var-card{
+.var-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -464,6 +497,11 @@ export default {
   line-height: 1.5
 }
 
+.card-title-font{
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 5px
+}
 .docStyle {
   display: flex;
   width: 100%;
