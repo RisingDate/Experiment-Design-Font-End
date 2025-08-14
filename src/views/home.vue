@@ -41,8 +41,7 @@
             </div>
           </div>
           <!--     Agent设计     -->
-          <div style="display: flex; width: 100%; align-items: center" v-loading="isLoading"
-               element-loading-text="需求解析中">
+          <div style="display: flex; width: 100%; align-items: center">
             <el-card style="width: calc(100% - 100px); height: 24vh; margin-top: 2vh" shadow="never">
               你好
             </el-card>
@@ -51,7 +50,9 @@
                 <span class="card-title-font">智能体设计</span>
               </div>
               <div class="avatar-card avatar-card-right">
-                <img src="../assets/images/avatar/图层 7.png" class="avatar-size" alt="expGoal"/>
+                <div v-loading="avatarLoading[4]">
+                  <img src="../assets/images/avatar/图层 7.png" class="avatar-size" alt="expGoal" />
+                </div>
                 <div style="display: flex">
                   <el-tag round style="margin-right: 5px" :type="agentAvatarState.agentDesigner.idType">5</el-tag>
                   <el-tag :type="agentAvatarState.agentDesigner.type">{{ agentAvatarState.agentDesigner.state }}</el-tag>
@@ -62,14 +63,15 @@
         </el-card>
       </div>
       <div style="width: 60%; display: flex; flex-direction: column; justify-content: space-between;">
-        <el-card style="width: 100%; height: 100%" shadow="never" v-loading="isLoading"
-                 element-loading-text="需求解析中">
+        <el-card style="width: 100%; height: 100%" shadow="never">
           <el-scrollbar max-height="88vh">
             <div style="display: flex; flex-direction: column; width: 100%">
               <!--    实验目的     -->
               <div style="width: 100%; display: flex">
                 <div class="avatar-card">
-                  <img src="../assets/images/avatar/expGoal.png" class="avatar-size" alt="加载失败"/>
+                  <div v-loading="avatarLoading[0]">
+                    <img src="../assets/images/avatar/expGoal.png" class="avatar-size" alt="加载失败"/>
+                  </div>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.expGoal.idType">1</el-tag>
                     <el-tag :type="agentAvatarState.expGoal.type">{{ agentAvatarState.expGoal.state }}</el-tag>
@@ -85,7 +87,9 @@
                   <span style="color: #9D3807">目的解释：</span>{{ expData.goal.explain }}
                 </el-card>
                 <div class="avatar-card avatar-card-right">
-                  <img src="../assets/images/avatar/图层 0.png" class="avatar-size" alt="expGoal"/>
+                  <div v-loading="avatarLoading[1]">
+                    <img src="../assets/images/avatar/图层 0.png" class="avatar-size" alt="expGoal"/>
+                  </div>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.expGoalObserver.idType">2</el-tag>
                     <el-tag :type="agentAvatarState.expGoalObserver.type">{{ agentAvatarState.expGoalObserver.state }}
@@ -135,7 +139,9 @@
                   </el-card>
                 </div>
                 <div class="avatar-card avatar-card-right">
-                  <img src="../assets/images/avatar/图层 3.png" class="avatar-size" alt="expGoal"/>
+                  <div v-loading="avatarLoading[2]">
+                    <img src="../assets/images/avatar/图层 3.png" class="avatar-size" alt="expGoal"/>
+                  </div>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.VCObserver.idType">3</el-tag>
                     <el-tag :type="agentAvatarState.VCObserver.type">{{ agentAvatarState.VCObserver.state }}</el-tag>
@@ -162,7 +168,9 @@
                   </el-table>
                 </div>
                 <div class="avatar-card avatar-card-right">
-                  <img src="../assets/images/avatar/图层 5.png" class="avatar-size" alt="expGoal"/>
+                  <div v-loading="avatarLoading[3]">
+                    <img src="../assets/images/avatar/图层 5.png" class="avatar-size" alt="expGoal"/>
+                  </div>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.VCParamObserver.idType">4</el-tag>
                     <el-tag :type="agentAvatarState.VCParamObserver.type">{{ agentAvatarState.VCParamObserver.state }}
@@ -175,15 +183,6 @@
         </el-card>
       </div>
     </div>
-    <!--   正在解析...小组件   -->
-    <el-card style="width: 400px; height: 80px; position: absolute; top: 24vh; left: calc(25% - 200px);"
-             shadow="never" v-if="analysisPercentageShow">
-      <div style="display: flex; width: 100%; height: 40px; align-items: center;">
-        <span style="font-size: 16px">正在解析：</span>
-        <el-progress :percentage="analysisPercentage" :stroke-width="15" striped
-                     :color="customColors" style="width: 260px"/>
-      </div>
-    </el-card>
     <!--   实验方案展示dialog   -->
     <el-dialog v-model="formulaDialogVisible" title="响应变量计算公式" center>
       <div style="display: flex; flex-direction: column; font-size: 18px; line-height: 2">
@@ -215,7 +214,6 @@ export default {
       expandTrigger: 'hover'
     }
     const loadingAnimation = ref(false)
-    const analysisPercentage = ref(0)
     const customColors = [
       {color: '#f56c6c', percentage: 20},
       {color: '#e6a23c', percentage: 40},
@@ -223,7 +221,6 @@ export default {
       {color: '#1989fa', percentage: 80},
       {color: '#6f7ad3', percentage: 100},
     ]
-    const isLoading = ref(false)
     const expData = ref({
       goal: {
         category: '',
@@ -238,8 +235,8 @@ export default {
       }
     })
     return {
-      cardMaxHeight, props, loadingAnimation, analysisPercentage,
-      customColors, isLoading, expData
+      cardMaxHeight, props, loadingAnimation,
+      customColors, expData
     }
   },
   data() {
@@ -282,7 +279,6 @@ export default {
         {value: 1, label: '策略优化',},
         {value: 2, label: '模型优化',},
       ],
-      analysisPercentageShow: false,
       demandChart: null,
       demandOption: {},
       demandData: [
@@ -300,16 +296,18 @@ export default {
       expParamsTableData: [],
       formulaDialogVisible: false,
       agentAvatarState: {
-        expGoal: {state: '思考中', type: 'primary', idType: 'warning'},
+        expGoal: {state: '等待中', type: 'info', idType: 'warning'},
         expGoalObserver: {state: '等待中', type: 'info', idType: 'info'},
         VCObserver: {state: '等待中', type: 'info', idType: 'info'},
         VCParamObserver: {state: '等待中', type: 'info', idType: 'info'},
         agentDesigner: {state: '等待中', type: 'info', idType: 'info'}
       },
+      num2State: ['等待中', '思考中', '完成', '不通过'],
+      num2Type: ['info', 'primary', 'success', 'danger'],
+      avatarLoading: [0, 0, 0, 0, 0],
       logDrawerVisible: false,
 
       websocket: null,
-
     }
   },
   created() {
@@ -322,56 +320,42 @@ export default {
     goBack() {
       this.$router.push('/home/powerGame/expDesign');
     },
-    demandAnalysis() {
-      this.isLoading = true;
-      this.analysisPercentage = 0;
-      this.analysisPercentageShow = true;
+    resShow(res){
+      this.expData.goal = res.data.goal;
+      this.expData.influenceFactor = res.data.influence_factor;
+      this.expData.responseVar = res.data.response_var;
+      this.expData.formula = res.data.formula;
+      this.expData.expParams.expMethod = res.data.exp_params.exp_method;
+      this.expData.expParams.params = res.data.exp_params.params;
+
+      let params = res.data.exp_params.params;
+      let tableKeys = Object.keys(params);
+      this.expParamsTableData = []
+      for (let i = 0; i < params[tableKeys[0]].length; i++) {
+        let rowData = {index: '实验' + (i + 1)}
+        for (let j = 0; j < tableKeys.length; j++)
+          rowData[tableKeys[j]] = params[tableKeys[j]][i]
+        this.expParamsTableData.push(rowData);
+      }
+    },
+    demandAnalysis(res) {
       this.run('begin')
-
-      request.post('/requirementAnalysis', {
-        text: this.demandText
-      }).then(res => {
-        console.log(res)
-        this.analysisPercentage += 10;
-        this.analysisPercentageShow = false;
-        this.isLoading = false;
-        if (res.type === 'error') {
-          ElMessage({
-            type: 'error',
-            message: '需求解析失败，请重新尝试'
-          })
-          return;
-        }
-        ElMessage({
-          type: 'success',
-          message: '需求解析完成'
-        })
-
-        this.expData.goal = res.data.goal;
-        this.expData.influenceFactor = res.data.influence_factor;
-        this.expData.responseVar = res.data.response_var;
-        this.expData.formula = res.data.formula;
-        this.expData.expParams.expMethod = res.data.exp_params.exp_method;
-        this.expData.expParams.params = res.data.exp_params.params;
-
-        let params = res.data.exp_params.params;
-        let tableKeys = Object.keys(params);
-        this.expParamsTableData = []
-        for (let i = 0; i < params[tableKeys[0]].length; i++) {
-          let rowData = {index: '实验' + (i + 1)}
-          for (let j = 0; j < tableKeys.length; j++)
-            rowData[tableKeys[j]] = params[tableKeys[j]][i]
-          this.expParamsTableData.push(rowData);
-        }
-      })
-      let timeLeft = 10
-      let timer = setInterval(() => {
-        --timeLeft;
-        if (timeLeft < 2) {
-          clearInterval(timer);
-        }
-        this.analysisPercentage += 10;
-      }, 1000)
+      // request.post('/requirementAnalysis', {
+      //   text: this.demandText
+      // }).then(res => {
+      //   console.log(res)
+      //   if (res.type === 'error') {
+      //     ElMessage({
+      //       type: 'error',
+      //       message: '需求解析失败，请重新尝试'
+      //     })
+      //     return;
+      //   }
+      //   ElMessage({
+      //     type: 'success',
+      //     message: '需求解析完成'
+      //   })
+      // })
     },
     demandChartNodeClick(param) {
       console.log(param)
@@ -465,7 +449,15 @@ export default {
 
     async run(param){
       await this.initWebSocket(param, (res) => {
-        console.log('nihao')
+        let agentIndex = 0
+        for(const key in this.agentAvatarState){
+          this.agentAvatarState[key].state = this.num2State[res.agent_state[agentIndex]];
+          this.agentAvatarState[key].type = this.num2Type[res.agent_state[agentIndex]];
+          this.avatarLoading[agentIndex] = (res.agent_state[agentIndex] === 1 || res.agent_state[agentIndex] === '1') ? 1 : 0;
+          ++agentIndex;
+        }
+        if(res.data)
+          this.resShow(res)
       });
     },
     async initWebSocket(param, callback){
