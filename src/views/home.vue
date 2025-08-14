@@ -41,7 +41,8 @@
             </div>
           </div>
           <!--     Agent设计     -->
-          <div style="display: flex; width: 100%; align-items: center">
+          <div style="display: flex; width: 100%; align-items: center" v-loading="isLoading"
+               element-loading-text="需求解析中">
             <el-card style="width: calc(100% - 100px); height: 24vh; margin-top: 2vh" shadow="never">
               你好
             </el-card>
@@ -306,6 +307,9 @@ export default {
         agentDesigner: {state: '等待中', type: 'info', idType: 'info'}
       },
       logDrawerVisible: false,
+
+      websocket: null,
+
     }
   },
   created() {
@@ -322,6 +326,8 @@ export default {
       this.isLoading = true;
       this.analysisPercentage = 0;
       this.analysisPercentageShow = true;
+      this.run('begin')
+
       request.post('/requirementAnalysis', {
         text: this.demandText
       }).then(res => {
@@ -456,6 +462,38 @@ export default {
         message: '添加成功'
       })
     },
+
+    async run(param){
+      await this.initWebSocket(param, (res) => {
+        console.log('nihao')
+      });
+    },
+    async initWebSocket(param, callback){
+      if('WebSocket' in window){
+        return new Promise((resolve, reject) => {
+          this.websocket = new WebSocket('ws://localhost:8765');
+          this.websocket.onopen = () => {
+            console.log('websocket opened');
+            this.websocket.send(param);
+          }
+          this.websocket.onclose = () => {
+            console.log('websocket closed');
+            this.websocket.close();
+          }
+          this.websocket.onmessage = (msg) => {
+            console.log('websocket 接收数据', JSON.parse(msg.data));
+            callback(JSON.parse(msg.data));
+          }
+          this.websocket.onerror = (err) => {
+            console.log(err);
+            reject(err);
+          }
+        })
+      }
+      else{
+        console.log('您的浏览器不支持websocket')
+      }
+    }
   },
 }
 </script>
