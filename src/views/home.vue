@@ -12,54 +12,37 @@
               <img src="../assets/images/smile.png" style="height: 22px" alt="smile"/>
             </div>
             <div style="display: flex">
-              <el-button type="primary" size="default" @click="logDrawerVisible = true">查看日志</el-button>
+              <el-button type="primary" size="default" @click="knowledgeGraphDialogVisible = true; loadDemandChart()">
+                知识图谱
+              </el-button>
+              <el-button type="default" size="default" @click="logDrawerVisible = true">查看日志</el-button>
               <el-button type="warning" size="default" @click="demandAnalysis()">解析</el-button>
             </div>
           </div>
           <el-input v-model="demandText" style="width: 100%; font-size: 14px; line-height: 1.5"
                     :rows="8" resize="none" type="textarea" placeholder="Please input your demand"/>
-          <!--     知识图谱     -->
-          <div style="display: flex; width: 100%; margin-top: 2rem">
-            <div id="demandChart" style="width: 60%; height: 35vh"></div>
-            <div style="display: flex; flex-direction: column; width: 40%; padding: 2vh 5px 0 5px">
-              <el-scrollbar max-height="33vh">
-                <div v-for="(item,index) in documentData" class="docStyle"
-                     style="display: flex; width: 100%; padding: 5px 0">
-                  <div style="width: 90%">
-                    <img src="../assets/images/document.png" style="height: 22px" alt="doc"/>
-                    {{ item }}
-                  </div>
-                  <div style="margin-left: 3px; width: 10%">
-                    <el-button size="small" type="success" plain circle @click="docAdd(index)">
-                      <el-icon size="14">
-                        <Plus/>
-                      </el-icon>
-                    </el-button>
-                  </div>
-                </div>
-              </el-scrollbar>
-            </div>
-          </div>
-          <!--     Agent设计     -->
-          <div style="display: flex; width: 100%; align-items: center">
-            <el-card style="width: calc(100% - 100px); height: 24vh; margin-top: 2vh" shadow="never">
-              你好
-            </el-card>
-            <div style="display: flex; width: 100px; flex-direction: column;">
-              <div style="display: flex; width: 100%; justify-content: center; margin-left: 1rem">
-                <span class="card-title-font">智能体设计</span>
-              </div>
-              <div class="avatar-card avatar-card-right">
-                <div v-loading="avatarLoading[4]">
-                  <img src="../assets/images/avatar/图层 7.png" class="avatar-size" alt="expGoal" />
-                </div>
-                <div style="display: flex">
-                  <el-tag round style="margin-right: 5px" :type="agentAvatarState.agentDesigner.idType">5</el-tag>
-                  <el-tag :type="agentAvatarState.agentDesigner.type">{{ agentAvatarState.agentDesigner.state }}</el-tag>
-                </div>
+          <!--  对话框    -->
+          <el-card style="width: 100%; height: 50vh; margin-top: 1rem" shadow="never">
+            <div style="display: flex; flex-direction: column; width: 100%">
+              <div style="display: flex; width: 100%; justify-content: center; align-items: center">
+                <img src="../assets/images/llmIcon.png" style="height: 30px; width: 30px" alt="llmIcon"/>
+                <span class="card-title-font" style="font-size: 20px; margin-left: 0.5rem">LLM对话</span>
               </div>
             </div>
-          </div>
+            <el-scrollbar max-height="300px">
+              <div style="display: flex; flex-direction: column; width: 100%">
+                <div v-for="(item, index) in user2LLMDialogue">
+                  <div class="dialogueDiv">
+                    <img src="../assets/images/avatar/expGoal.png" class="dialogueAvatar" alt="llmIcon"/>
+                    <el-card class="dialogueCard" shadow="never">
+                      {{item.content}}
+                    </el-card>
+                  </div>
+
+                </div>
+              </div>
+            </el-scrollbar>
+          </el-card>
         </el-card>
       </div>
       <div style="width: 60%; display: flex; flex-direction: column; justify-content: space-between;">
@@ -98,7 +81,7 @@
                 </div>
               </div>
               <!--    影响因素 & 响应变量     -->
-              <div style="display: flex; align-items: center; width: 100%; margin-top: 3rem;">
+              <div style="display: flex; align-items: center; width: 100%; margin-top: 2rem;">
                 <div style="width: calc(100% - 100px); display: flex; align-items: center">
                   <el-card style="width: 42%" shadow="never">
                     <div class="var-card">
@@ -149,7 +132,7 @@
                 </div>
               </div>
               <!--    实验方法    -->
-              <div style="display: flex; align-items: center; width: 100%; margin-top: 3rem;">
+              <div style="display: flex; align-items: center; width: 100%; margin-top: 2rem;">
                 <div style="display: flex; flex-direction: column; width: calc(100% - 100px)">
                   <div class="card-title-font" style="display: flex; width: 100%; justify-content: center">
                     实验方法：<span style="color: #F7D233">{{ expData.expParams.expMethod }}</span>
@@ -178,11 +161,55 @@
                   </div>
                 </div>
               </div>
+              <!--    Agent设计    -->
+              <div style="display: flex; width: 100%; align-items: center; margin-top: 2rem">
+                <div style="display: flex; flex-direction: column; width: calc(100% - 100px)">
+                  <div class="card-title-font" style="display: flex; width: 100%; justify-content: center">
+                    智能体设计
+                  </div>
+                  <el-card style="width: 100%; height: 24vh; margin-top: 5px" shadow="never">
+                    你好
+                  </el-card>
+                </div>
+                <div class="avatar-card avatar-card-right">
+                  <div v-loading="avatarLoading[4]">
+                    <img src="../assets/images/avatar/图层 7.png" class="avatar-size" alt="expGoal" />
+                  </div>
+                  <div style="display: flex">
+                    <el-tag round style="margin-right: 5px" :type="agentAvatarState.agentDesigner.idType">5</el-tag>
+                    <el-tag :type="agentAvatarState.agentDesigner.type">{{ agentAvatarState.agentDesigner.state }}</el-tag>
+                  </div>
+                </div>
+              </div>
             </div>
           </el-scrollbar>
         </el-card>
       </div>
     </div>
+    <!--   知识图谱dialog     -->
+    <el-dialog v-model="knowledgeGraphDialogVisible" title="知识图谱" center width="60%">
+      <div style="display: flex; width: 100%; margin-top: 2rem">
+        <div id="demandChart" style="width: 60%; height: 50vh"></div>
+        <div style="display: flex; flex-direction: column; width: 40%; padding: 2vh 5px 0 5px">
+          <el-scrollbar max-height="48vh">
+            <div v-for="(item,index) in documentData" class="docStyle"
+                 style="display: flex; width: 100%; padding: 5px 0">
+              <div style="width: 90%">
+                <img src="../assets/images/document.png" style="height: 22px" alt="doc"/>
+                {{ item }}
+              </div>
+              <div style="margin-left: 3px; width: 10%">
+                <el-button size="small" type="success" plain circle @click="docAdd(index)">
+                  <el-icon size="14">
+                    <Plus/>
+                  </el-icon>
+                </el-button>
+              </div>
+            </div>
+          </el-scrollbar>
+        </div>
+      </div>
+    </el-dialog>
     <!--   实验方案展示dialog   -->
     <el-dialog v-model="formulaDialogVisible" title="响应变量计算公式" center>
       <div style="display: flex; flex-direction: column; font-size: 18px; line-height: 2">
@@ -294,6 +321,10 @@ export default {
         '《联合国宪章》相关条款解读及在古巴导弹危机中的适用性分析', '《部分禁止核试验条约》与古巴导弹危机的关系研究', '国际法中关于领海、领土主权及军事行动限制的相关规定在古巴导弹危机中的案例分析'
       ],
       expParamsTableData: [],
+      user2LLMDialogue: [
+        {userOrLLM: 0, avatar: '', content: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',},
+        {userOrLLM: 1, avatar: '', content: '你好好好好好',},
+      ],
       formulaDialogVisible: false,
       agentAvatarState: {
         expGoal: {state: '等待中', type: 'info', idType: 'warning'},
@@ -306,7 +337,7 @@ export default {
       num2Type: ['info', 'primary', 'success', 'danger'],
       avatarLoading: [0, 0, 0, 0, 0],
       logDrawerVisible: false,
-
+      knowledgeGraphDialogVisible: false,
       websocket: null,
     }
   },
@@ -314,7 +345,7 @@ export default {
 
   },
   mounted() {
-    this.loadDemandChart();
+    // this.loadDemandChart();
   },
   methods: {
     goBack() {
@@ -400,7 +431,7 @@ export default {
             },
             draggable: true,
             symbolSize: 40,
-            roam: true,
+            roam: false,
             label: {
               show: true,
               fontSize: 10
@@ -544,5 +575,27 @@ export default {
 
 .docStyle:hover {
   color: #409EFF;
+}
+
+.dialogueDiv{
+  display: flex;
+  width: 100%;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.dialogueAvatar{
+  width: 40px;
+  height: 40px;
+  margin-right: 0.5rem;
+  margin-bottom: 5px;
+}
+
+.dialogueCard{
+  --el-card-padding: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 20px;
+  background-color: aliceblue;
 }
 </style>
