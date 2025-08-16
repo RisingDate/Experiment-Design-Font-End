@@ -22,7 +22,7 @@
           <el-input v-model="demandText" style="width: 100%; font-size: 14px; line-height: 1.5"
                     :rows="8" resize="none" type="textarea" placeholder="Please input your demand"/>
           <!--  对话框    -->
-          <el-card style="width: 100%; height: 50vh; margin-top: 1rem" shadow="never">
+          <el-card style="width: 100%; height: 60vh; margin-top: 1rem" shadow="never">
             <div style="display: flex; flex-direction: column; width: 100%">
               <div style="display: flex; width: 100%; justify-content: center; align-items: center">
                 <img src="../assets/images/llmIcon.png" style="height: 30px; width: 30px" alt="llmIcon"/>
@@ -322,7 +322,7 @@ export default {
       ],
       expParamsTableData: [],
       user2LLMDialogue: [
-        {userOrLLM: 0, avatar: '', content: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',},
+        {userOrLLM: 0, avatar: '', content: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好好好好好好好好好好好好好好好好好好',},
         {userOrLLM: 1, avatar: '', content: '你好好好好好',},
       ],
       formulaDialogVisible: false,
