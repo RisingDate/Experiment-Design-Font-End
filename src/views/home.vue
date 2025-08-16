@@ -22,14 +22,14 @@
           <el-input v-model="demandText" style="width: 100%; font-size: 14px; line-height: 1.5"
                     :rows="8" resize="none" type="textarea" placeholder="Please input your demand"/>
           <!--  对话框    -->
-          <el-card style="width: 100%; height: 60vh; margin-top: 1rem" shadow="never">
+          <el-card style="width: 100%; height: 60vh; margin-top: 1rem; position: relative" shadow="never">
             <div style="display: flex; flex-direction: column; width: 100%">
               <div style="display: flex; width: 100%; justify-content: center; align-items: center">
                 <img src="../assets/images/llmIcon.png" style="height: 30px; width: 30px" alt="llmIcon"/>
                 <span class="card-title-font" style="font-size: 20px; margin-left: 0.5rem">LLM对话</span>
               </div>
             </div>
-            <el-scrollbar max-height="300px">
+            <el-scrollbar height="400px" ref="llmDialogScrollbarRef">
               <div style="display: flex; flex-direction: column; width: 100%">
                 <div v-for="(item, index) in user2LLMDialogue">
                   <div class="dialogueDiv" :class="{'dialogDiv-reverse': !item.userOrLLM}">
@@ -42,6 +42,15 @@
                 </div>
               </div>
             </el-scrollbar>
+            <div class="llm-input-pos">
+              <el-input ref="llmDialogInputRef" v-model="llmDialogInput" class="input-round-corner" resize="none"
+                        type="textarea" :autosize="{minRows: 1, maxRows: 4}" @keydown.enter="llmInputConfirm">
+              </el-input>
+            </div>
+            <el-button circle size="default" color="#626aef" @click="llmInputConfirm"
+                       style="position: absolute; bottom: 20px; right: 46px; z-index: 12">
+              <el-icon size="18"><Top/></el-icon>
+            </el-button>
           </el-card>
         </el-card>
       </div>
@@ -226,15 +235,15 @@
 </template>
 
 <script>
-import {ref} from "vue";
+import {nextTick, ref} from "vue";
 import request from "../utils/request";
 import {ElMessage} from "element-plus";
-import {Loading, Plus, View} from "@element-plus/icons-vue";
+import {Loading, Plus, Search, Top, View} from "@element-plus/icons-vue";
 import * as echarts from "echarts";
 
 export default {
   name: "Home",
-  components: {View, Loading, Plus},
+  components: {Top, View, Loading, Plus, Search},
   setup() {
     const cardMaxHeight = ref(100)
     const props = {
@@ -340,6 +349,8 @@ export default {
       avatarLoading: [0, 0, 0, 0, 0],
       logDrawerVisible: false,
       knowledgeGraphDialogVisible: false,
+
+      llmDialogInput: '',
       websocket: null,
     }
   },
@@ -479,7 +490,16 @@ export default {
         message: '添加成功'
       })
     },
-
+    async llmInputConfirm(event){
+      if(event.shiftKey) return;
+      this.user2LLMDialogue.push({
+        userOrLLM: 0, avatar: '', content: this.llmDialogInput
+      })
+      await this.$refs.llmDialogInputRef.clear();
+      await this.$refs.llmDialogInputRef.blur();
+      await nextTick()
+      await this.$refs.llmDialogScrollbarRef.setScrollTop(800)
+    },
     async run(param){
       await this.initWebSocket(param, (res) => {
         let agentIndex = 0
@@ -518,7 +538,7 @@ export default {
       else{
         console.log('您的浏览器不支持websocket')
       }
-    }
+    },
   },
 }
 </script>
@@ -582,7 +602,6 @@ export default {
 .dialogueDiv{
   display: flex;
   width: 100%;
-  align-items: center;
   margin-top: 1rem;
 }
 
@@ -604,5 +623,22 @@ export default {
   line-height: 1.5;
   border-radius: 20px;
   background-color: aliceblue;
+  display: flex;
+  align-items: center;
+}
+
+.llm-input-pos{
+  display: flex;
+  align-items: center;
+  width: calc(100% - 80px);
+  padding: 0 20px;
+  position: absolute;
+  z-index: 10;
+  bottom: 1rem;
+}
+.input-round-corner :deep(.el-textarea__inner) {
+  border-radius: 20px;
+  padding: 10px 35px 10px 15px;
+  width: 100%;
 }
 </style>
