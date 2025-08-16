@@ -32,7 +32,7 @@
             <el-scrollbar max-height="300px">
               <div style="display: flex; flex-direction: column; width: 100%">
                 <div v-for="(item, index) in user2LLMDialogue">
-                  <div class="dialogueDiv">
+                  <div class="dialogueDiv" :class="{'dialogDiv-reverse': !item.userOrLLM}">
                     <img src="../assets/images/avatar/expGoal.png" class="dialogueAvatar" alt="llmIcon"/>
                     <el-card class="dialogueCard" shadow="never">
                       {{item.content}}
@@ -324,6 +324,8 @@ export default {
       user2LLMDialogue: [
         {userOrLLM: 0, avatar: '', content: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好好好好好好好好好好好好好好好好好好',},
         {userOrLLM: 1, avatar: '', content: '你好好好好好',},
+        {userOrLLM: 1, avatar: '', content: '你好好好好好你好好好好好你好好好好好',},
+        {userOrLLM: 0, avatar: '', content: '你好好好好好好好好好',},
       ],
       formulaDialogVisible: false,
       agentAvatarState: {
@@ -582,6 +584,11 @@ export default {
   width: 100%;
   align-items: center;
   margin-top: 1rem;
+}
+
+.dialogDiv-reverse{
+  flex-direction: row-reverse;
+
 }
 
 .dialogueAvatar{
