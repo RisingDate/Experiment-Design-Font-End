@@ -38,7 +38,6 @@
                       {{item.content}}
                     </el-card>
                   </div>
-
                 </div>
               </div>
             </el-scrollbar>
@@ -62,7 +61,7 @@
               <div style="width: 100%; display: flex">
                 <div class="avatar-card">
                   <div v-loading="avatarLoading[0]">
-                    <img src="../assets/images/avatar/expGoal.png" class="avatar-size" alt="加载失败"/>
+                    <img :src="index2Avatar[0]" class="avatar-size" alt="加载失败"/>
                   </div>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.expGoal.idType">1</el-tag>
@@ -80,7 +79,7 @@
                 </el-card>
                 <div class="avatar-card avatar-card-right">
                   <div v-loading="avatarLoading[1]">
-                    <img src="../assets/images/avatar/图层 0.png" class="avatar-size" alt="expGoal"/>
+                    <img :src="index2Avatar[1]" class="avatar-size" alt="expGoal"/>
                   </div>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.expGoalObserver.idType">2</el-tag>
@@ -132,7 +131,7 @@
                 </div>
                 <div class="avatar-card avatar-card-right">
                   <div v-loading="avatarLoading[2]">
-                    <img src="../assets/images/avatar/图层 3.png" class="avatar-size" alt="expGoal"/>
+                    <img :src="index2Avatar[2]" class="avatar-size" alt="expGoal"/>
                   </div>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.VCObserver.idType">3</el-tag>
@@ -161,7 +160,7 @@
                 </div>
                 <div class="avatar-card avatar-card-right">
                   <div v-loading="avatarLoading[3]">
-                    <img src="../assets/images/avatar/图层 5.png" class="avatar-size" alt="expGoal"/>
+                    <img :src="index2Avatar[3]" class="avatar-size" alt="expGoal"/>
                   </div>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.VCParamObserver.idType">4</el-tag>
@@ -182,7 +181,7 @@
                 </div>
                 <div class="avatar-card avatar-card-right">
                   <div v-loading="avatarLoading[4]">
-                    <img src="../assets/images/avatar/图层 7.png" class="avatar-size" alt="expGoal" />
+                    <img :src="index2Avatar[4]" class="avatar-size" alt="expGoal" />
                   </div>
                   <div style="display: flex">
                     <el-tag round style="margin-right: 5px" :type="agentAvatarState.agentDesigner.idType">5</el-tag>
@@ -229,7 +228,22 @@
     </el-dialog>
     <!--   日志抽屉   -->
     <el-drawer v-model="logDrawerVisible" title="Agent行为日志" direction="ltr">
-
+      <div style="display: flex; flex-direction: column">
+        <div v-for="(item, index) in logData" :key="index" class="log-line">
+          <!--    头像    -->
+          <img :src="index2Avatar[item.agentIndex]" style="width: 10%; height: 10%" alt="图片加载失败"/>
+          <div style="display: flex; flex-direction: column; width: 85%; margin-left: 5%; line-height: 1.5">
+            <!--    时间    -->
+            <div :style="{color: index2Color[item.agentIndex]}" style="margin-bottom: 5px">
+              {{item.time}}
+            </div>
+            <!--    信息    -->
+            <div>
+              {{item.info}}
+            </div>
+          </div>
+        </div>
+      </div>
     </el-drawer>
   </div>
 </template>
@@ -292,12 +306,8 @@ export default {
         {
           value: 1, label: '析因分析',
           children: [
-            {
-              value: 1, label: '局部分析',
-            },
-            {
-              value: 2, label: '全局分析',
-            },
+            {value: 1, label: '局部分析'},
+            {value: 2, label: '全局分析'},
           ]
         },
         {value: 2, label: '离散分析',},
@@ -346,11 +356,24 @@ export default {
       },
       num2State: ['等待中', '思考中', '完成', '不通过'],
       num2Type: ['info', 'primary', 'success', 'danger'],
+      index2Avatar: [
+          new URL('@/assets/images/avatar/expGoal.png', import.meta.url).href,
+          new URL('@/assets/images/avatar/goalCheck.png', import.meta.url).href,
+          new URL('@/assets/images/avatar/VarCheck.png', import.meta.url).href,
+          new URL('@/assets/images/avatar/expMethod.png', import.meta.url).href,
+          new URL('@/assets/images/avatar/agentDesign.png', import.meta.url).href,
+      ],
+      index2Color: ['#6D8CAB', '#CDCE82', '#E97A66', '#D1C9BF', '#414045'],
       avatarLoading: [0, 0, 0, 0, 0],
       logDrawerVisible: false,
       knowledgeGraphDialogVisible: false,
 
       llmDialogInput: '',
+      // logData: {agentIndex: 0, time: '', info: ''}
+      logData: [
+        // {agentIndex: 0, time: '2025-01-01 13:00:23', info: 'nihao'},
+        // {agentIndex: 1, time: '2025-01-01 13:01:45', info: '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好'}
+      ],
       websocket: null,
     }
   },
@@ -509,6 +532,8 @@ export default {
           this.avatarLoading[agentIndex] = (res.agent_state[agentIndex] === 1 || res.agent_state[agentIndex] === '1') ? 1 : 0;
           ++agentIndex;
         }
+        if(res.info)
+          this.logData.push({agentIndex: res.info.agent_index, time: res.info.time, info: res.info.data})
         if(res.data)
           this.resShow(res)
       });
@@ -640,5 +665,12 @@ export default {
   border-radius: 20px;
   padding: 10px 35px 10px 15px;
   width: 100%;
+}
+
+.log-line{
+  display: flex;
+  width: 100%;
+  margin-bottom: 2rem;
+  font-size: 15px;
 }
 </style>
