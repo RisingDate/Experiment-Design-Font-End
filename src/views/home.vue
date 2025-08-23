@@ -175,8 +175,19 @@
                   <div class="card-title-font" style="display: flex; width: 100%; justify-content: center">
                     智能体设计
                   </div>
-                  <el-card style="width: 100%; height: 24vh; margin-top: 5px" shadow="never">
-                    你好
+                  <el-card style="width: 100%; min-height: 24vh; margin-top: 5px; display: flex; flex-direction: column" shadow="never">
+                    <div v-for="(agentItem, agentIndex) in expData.agentDesignRes.attribute" style="margin-top: 1rem">
+                      <el-descriptions :column="3" border>
+                        <el-descriptions-item v-for="(item, index) in agentItem">
+                          <template #label>
+                            <span style="font-weight: bold">
+                              {{ item.key }}
+                            </span>
+                          </template>
+                          {{ item.value }}
+                        </el-descriptions-item>
+                      </el-descriptions>
+                    </div>
                   </el-card>
                 </div>
                 <div class="avatar-card avatar-card-right">
@@ -282,6 +293,11 @@ export default {
       expParams: {
         expMethod: '',
         params: {}
+      },
+      agentDesignRes: {
+        attribute: [],
+        attributeExplain: [],
+        relationshipNet: []
       }
     })
     return {
@@ -395,6 +411,7 @@ export default {
       this.expData.expParams.expMethod = res.data.exp_params.exp_method;
       this.expData.expParams.params = res.data.exp_params.params;
 
+      // 生成实验方案table数据
       let params = res.data.exp_params.params;
       let tableKeys = Object.keys(params);
       this.expParamsTableData = []
@@ -403,6 +420,23 @@ export default {
         for (let j = 0; j < tableKeys.length; j++)
           rowData[tableKeys[j]] = params[tableKeys[j]][i]
         this.expParamsTableData.push(rowData);
+      }
+
+      // 生成智能体设计description数据
+      if (res.data.agent_design_res) {
+        this.expData.agentDesignRes = {
+          attribute: [],
+          attributeExplain: [],
+          relationshipNet: []
+        }
+        res.data.agent_design_res.attribute.forEach(agent => {
+          let keys = Object.keys(agent)
+          let values = Object.values(agent)
+          let newAgentLine = []
+          for (let i = 0; i < keys.length; i++)
+            newAgentLine.push({key: keys[i], value: values[i]});
+          this.expData.agentDesignRes.attribute.push(newAgentLine);
+        })
       }
     },
     demandAnalysis(res) {
